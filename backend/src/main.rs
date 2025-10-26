@@ -15,6 +15,8 @@ mod utils;
 
 #[rocket::main]
 async fn main() {
+    dotenvy::dotenv().ok();
+
     let _ = rocket::build()
         .attach(DB::init())
         .attach(

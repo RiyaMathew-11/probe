@@ -7,7 +7,7 @@ use super::{ai_actor::{AIActor, ParsedFundingInfo}, github_actor::{GithubActor, 
 
 #[derive(Clone)]
 pub enum DepScannerStatus {
-    Processing,
+    Processing(String),
     Done {
         dep_objects: HashMap<(String, String), PackageInfo>,
         deps_on_graph: HashMap<Option<(String, String)>, Vec<(String, String)>>,
@@ -151,7 +151,7 @@ impl DepScannerActor {
         let state = Arc::new(
             DepScannerActor {
                 id,
-                status: RwLock::new(DepScannerStatus::Processing),
+                status: RwLock::new(DepScannerStatus::Processing("Initialising".to_string())),
             }
         );
 
@@ -160,6 +160,9 @@ impl DepScannerActor {
 
         // Main processing routine
         tokio::spawn(async move {
+            // Dependency Graph Processing
+            *moved_state.status.write().await = DepScannerStatus::Processing("Getting Dependency Graph".to_string());
+
             let (dep_objects, deps_on_graph) = DepScannerActor::get_dep_graph(npm_actor, package_json).await;
 
             let repo_urls = dep_objects
@@ -209,6 +212,11 @@ impl DepScannerActor {
             // }
 
 
+            // Github Info processing
+            *moved_state.status.write().await = DepScannerStatus::Processing(
+                format!("Fetching GitHub info for {} repositories", repo_urls.len())
+            );
+
             let mut github_info_futures = Vec::new();
 
             for (key, repo_url) in repo_urls.iter() {
@@ -216,16 +224,27 @@ impl DepScannerActor {
                 let key = key.clone();
                 let repo_url = repo_url.clone();
                 github_info_futures.push(async move {
-                    let github_info = github_actor.get_github_info(&repo_url).await.unwrap();
-                    (key, github_info)
+                    match github_actor.get_github_info(&repo_url).await {
+                        Ok(github_info) => Some((key, github_info)),
+                        Err(e) => {
+                            eprintln!("Failed to get GitHub info for {}: {:?}", repo_url, e);
+                            None
+                        }
+                    }
                 });
             }
 
             let github_info_map: HashMap<_, _> = iter(github_info_futures)
                 .buffer_unordered(5)
+                .filter_map(|x| async { x })
                 .collect()
             .await;
 
+            *moved_state.status.write().await = DepScannerStatus::Processing(
+                format!("Fetching funding information from {} repositories", github_info_map.len())
+            );
+
+            // Funding Info Processing
             let mut funding_info_futures = Vec::new();
 
             for gh_info in github_info_map.values() {
@@ -251,6 +270,8 @@ impl DepScannerActor {
                 .buffer_unordered(5)
                 .collect()
             .await;
+
+            *moved_state.status.write().await = DepScannerStatus::Processing("Finalizing results".to_string());
 
             *moved_state.status.write().await = DepScannerStatus::Done {
                 dep_objects,
