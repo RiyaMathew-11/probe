@@ -37,11 +37,14 @@ async function handleScannedFile(formData) {
     })
 
     const trackingId = response.tracking_id
-    // Navigate to insights page with tracking ID
+    // Close dialog and navigate to insights page with tracking ID
+    fileDialog.value.closeDialog()
     router.push(`/insights?trackingId=${trackingId}`)
   } catch (error) {
     console.error('Error scanning file:', error)
+    // Close dialog on error
+    fileDialog.value.closeDialog()
     // Handle error (e.g., show error message to user)
-  } 
+  }
 }
 </script>

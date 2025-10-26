@@ -74,10 +74,10 @@ function validateAndSetFile(file) {
 
 function handleScan() {
     if (isFileValid.value) {
+        isLoading.value = true
         const formData = new FormData()
         formData.append('file', selectedFile.value)
         emit('file-scanned', formData)
-        closeDialog() // Close the dialog after emitting the event
     }
 }
 
@@ -85,10 +85,11 @@ function resetForm() {
     selectedFile.value = null
     isFileValid.value = false
     errorMessage.value = ''
+    isLoading.value = false
     if (fileInput.value) {
         fileInput.value.value = ''
     }
 }
 
-defineExpose({ openDialog })
+defineExpose({ openDialog, closeDialog })
 </script>
