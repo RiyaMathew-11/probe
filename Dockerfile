@@ -58,7 +58,7 @@ COPY --from=frontend_builder /frontend/.output frontend
 COPY aio-supervisord.conf supervisord.conf
 COPY Caddyfile Caddyfile
 
-ENV ROCKET_PORT=8000
+ENV ROCKET_PORT=9000
 ENV ROCKET_ADDRESS="0.0.0.0"
 
 CMD ["supervisord", "-c", "/fosshack/supervisord.conf"]
