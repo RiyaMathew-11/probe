@@ -104,7 +104,7 @@
     <div class="bg-gray-800 border border-violet-600 rounded-lg p-6 shadow-lg">
       <h3 class="text-xl font-bold text-violet-300 mb-4 flex gap-2">
         <Icon name="mdi:alert-circle-outline" class="text-red-500" />
-        Top 5 Projects by Open Issues ({{ stats.topOpenIssues.length }})
+        Top Projects by Issues
       </h3>
       <div v-if="stats.topOpenIssues.length > 0" class="space-y-3">
         <div v-for="(project, index) in stats.topOpenIssues" :key="project.name"
