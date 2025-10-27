@@ -72,12 +72,28 @@ function validateAndSetFile(file) {
     }
 }
 
-function handleScan() {
+async function handleScan() {
     if (isFileValid.value) {
         isLoading.value = true
-        const formData = new FormData()
-        formData.append('file', selectedFile.value)
-        emit('file-scanned', formData)
+
+        // Read the file to extract project name
+        const reader = new FileReader()
+        reader.onload = (e) => {
+            try {
+                const packageJson = JSON.parse(e.target.result)
+                const projectName = packageJson.name || 'Unknown Project'
+
+                const formData = new FormData()
+                formData.append('file', selectedFile.value)
+                emit('file-scanned', { formData, projectName })
+            } catch (error) {
+                console.error('Error parsing package.json:', error)
+                const formData = new FormData()
+                formData.append('file', selectedFile.value)
+                emit('file-scanned', { formData, projectName: 'Unknown Project' })
+            }
+        }
+        reader.readAsText(selectedFile.value)
     }
 }
 
