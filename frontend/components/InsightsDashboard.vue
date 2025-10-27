@@ -6,7 +6,7 @@
       <div class="bg-gray-800 border border-violet-600 rounded-lg p-6 shadow-lg">
         <div class="flex items-center justify-between">
           <div>
-            <p class="text-gray-400 text-sm">Total Projects</p>
+            <p class="text-gray-400 text-sm">Total Dependencies</p>
             <p class="text-3xl font-bold text-violet-300 mt-2">{{ stats.totalProjects }}</p>
           </div>
           <Icon name="mdi:package-variant" class="text-violet-600 text-4xl" />
@@ -17,7 +17,7 @@
       <div class="bg-gray-800 border border-violet-600 rounded-lg p-6 shadow-lg">
         <div class="flex items-center justify-between">
           <div>
-            <p class="text-gray-400 text-sm">GitHub Projects</p>
+            <p class="text-gray-400 text-sm">GitHub-Based</p>
             <p class="text-3xl font-bold text-violet-300 mt-2">{{ stats.githubProjects }}</p>
             <p class="text-xs text-gray-500 mt-1">{{ stats.githubPercentage }}%</p>
           </div>

@@ -2,7 +2,10 @@
     <Header />
     <LoadingScreen v-if="isLoading" :message="statusMessage" />
     <div v-else-if="scanResult" class="container mx-auto p-4">
-        <h1 class="text-3xl font-bold mb-6 text-violet-300">Scan Results</h1>
+        <div class="mb-6">
+            <h1 class="text-4xl font-bold text-white">{{ projectName }}</h1>
+            <p class="text-violet-300 text-lg mt-2">Dependency Analysis</p>
+        </div>
 
         <!-- Dashboard Summary -->
         <InsightsDashboard :scanResult="scanResult" />
@@ -196,6 +199,7 @@ const isLoading = ref(true)
 const statusMessage = ref('Initializing...')
 const scanResult = ref(null)
 const expandedDeps = ref([])
+const projectName = ref(route.query.projectName || 'Project')
 
 // refs for search, filter and sort
 const searchQuery = ref('')

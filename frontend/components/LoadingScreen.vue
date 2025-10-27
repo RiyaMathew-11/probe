@@ -42,7 +42,7 @@
 
             <!-- Additional info -->
             <p class="text-gray-400 text-sm pt-4">
-              This may take a few moments...
+              This may take a few minutes :\
             </p>
           </div>
         </div>
