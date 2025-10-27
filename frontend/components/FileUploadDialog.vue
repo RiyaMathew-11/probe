@@ -72,12 +72,28 @@ function validateAndSetFile(file) {
     }
 }
 
-function handleScan() {
+async function handleScan() {
     if (isFileValid.value) {
-        const formData = new FormData()
-        formData.append('file', selectedFile.value)
-        emit('file-scanned', formData)
-        closeDialog() // Close the dialog after emitting the event
+        isLoading.value = true
+
+        // Read the file to extract project name
+        const reader = new FileReader()
+        reader.onload = (e) => {
+            try {
+                const packageJson = JSON.parse(e.target.result)
+                const projectName = packageJson.name || 'Unknown Project'
+
+                const formData = new FormData()
+                formData.append('file', selectedFile.value)
+                emit('file-scanned', { formData, projectName })
+            } catch (error) {
+                console.error('Error parsing package.json:', error)
+                const formData = new FormData()
+                formData.append('file', selectedFile.value)
+                emit('file-scanned', { formData, projectName: 'Unknown Project' })
+            }
+        }
+        reader.readAsText(selectedFile.value)
     }
 }
 
@@ -85,10 +101,11 @@ function resetForm() {
     selectedFile.value = null
     isFileValid.value = false
     errorMessage.value = ''
+    isLoading.value = false
     if (fileInput.value) {
         fileInput.value.value = ''
     }
 }
 
-defineExpose({ openDialog })
+defineExpose({ openDialog, closeDialog })
 </script>

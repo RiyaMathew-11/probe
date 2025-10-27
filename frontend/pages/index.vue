@@ -29,7 +29,7 @@ function openFileDialog() {
   fileDialog.value.openDialog()
 }
 
-async function handleScannedFile(formData) {
+async function handleScannedFile({ formData, projectName }) {
   try {
     const response = await $fetch('/backend/process_file', {
       method: 'POST',
@@ -37,11 +37,11 @@ async function handleScannedFile(formData) {
     })
 
     const trackingId = response.tracking_id
-    // Navigate to insights page with tracking ID
-    router.push(`/insights?trackingId=${trackingId}`)
+    fileDialog.value.closeDialog()
+    router.push(`/insights?trackingId=${trackingId}&projectName=${encodeURIComponent(projectName)}`)
   } catch (error) {
     console.error('Error scanning file:', error)
-    // Handle error (e.g., show error message to user)
-  } 
+    fileDialog.value.closeDialog()
+  }
 }
 </script>

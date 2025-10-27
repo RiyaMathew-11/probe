@@ -8,7 +8,7 @@ use lazy_static::lazy_static;
 use rocket::{form::Form, http::Status, serde::json::Json, Route, State};
 use uuid::Uuid;
 
-use crate::{actors::{ai_actor::{AIActor, ParsedFundingInfo}, dep_scanner::{DepScannerActor, DepScannerStatus}, github_actor::{FundingYMLContent, GithubActor}, npm_actor::NPMActor}, utils::JsonValue};
+use crate::{actors::{ai_actor::{AIActor, ParsedFundingInfo}, dep_scanner::{DepScannerActor, DepScannerStatus}, github_actor::GithubActor, npm_actor::NPMActor}, utils::JsonValue};
 
 #[get("/")]
 fn index() -> &'static str {
@@ -46,19 +46,24 @@ async fn process_file(input: Form<ProcessFileInput>, state: &State<AppState>) ->
 
 #[derive(Serialize)]
 struct GetStatusResult {
-    loading: bool
+    loading: bool,
+    message: Option<String>
 }
 
 #[get("/status?<id>")]
 async fn get_status(id: String, state: &State<AppState>) -> Result<Json<GetStatusResult>, Status> {
     let jobs = state.jobs.read().await;
 
-    let job = if let Some(job) = jobs.get(&id) { job } else { return Err(Status::NotFound) };
+    let job = if let Some(job) = jobs.get(&id) { 
+        job 
+    } else { 
+        return Err(Status::NotFound)
+    };
 
     match job.get_status().await {
-        DepScannerStatus::Processing => Ok(Json(GetStatusResult { loading: true })),
-        DepScannerStatus::Done { dep_objects: _, deps_on_graph: _, github_info_map: _, funding_info_map: _ } => 
-            Ok(Json(GetStatusResult { loading: false })),
+        DepScannerStatus::Processing(message) => Ok(Json(GetStatusResult { loading: true, message: Some(message) })),
+        DepScannerStatus::Done { dep_objects: _, deps_on_graph: _, github_info_map: _, funding_info_map: _ } =>
+            Ok(Json(GetStatusResult { loading: false, message: None })),
     }
 }
 
@@ -168,7 +173,7 @@ async fn get_result(id: String, state: &State<AppState>) -> Result<Json<GetResul
                 ai_funding_info: funding_info_map
             }))
         },
-        DepScannerStatus::Processing => Err(Status::BadRequest)
+        DepScannerStatus::Processing(_) => Err(Status::BadRequest)
     }
 }
 

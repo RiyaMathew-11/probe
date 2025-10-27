@@ -1,8 +1,19 @@
 <template>
     <Header />
-    <LoadingScreen v-if="isLoading" />
+    <LoadingScreen v-if="isLoading" :message="statusMessage" />
     <div v-else-if="scanResult" class="container mx-auto p-4">
-        <h1 class="text-3xl font-bold mb-6 text-violet-300">Scan Results</h1>
+        <div class="mb-6">
+            <h1 class="text-4xl font-bold text-white">{{ projectName }}</h1>
+            <p class="text-violet-300 text-lg mt-2">Dependency Analysis</p>
+        </div>
+
+        <!-- Dashboard Summary -->
+        <InsightsDashboard :scanResult="scanResult" />
+
+        <!-- Divider -->
+        <div class="my-8 border-t border-violet-600/30"></div>
+
+        <h2 class="text-2xl font-bold mb-4 text-violet-300">Project Details</h2>
 
         <!-- Search, Filter, and Sort Panel -->
         <div class="flex flex-col mb-6 p-4 bg-gray-800 rounded-lg gap-4">
@@ -185,8 +196,10 @@
 <script setup>
 const route = useRoute()
 const isLoading = ref(true)
+const statusMessage = ref('Initializing...')
 const scanResult = ref(null)
 const expandedDeps = ref([])
+const projectName = ref(route.query.projectName || 'Project')
 
 // refs for search, filter and sort
 const searchQuery = ref('')
@@ -201,6 +214,11 @@ async function pollForResult(trackingId, maxAttempts = 30, interval = 5000) {
             const statusResult = await $fetch(`/backend/status?id=${trackingId}`, {
                 method: 'GET'
             })
+
+            // Update status message if available
+            if (statusResult.message) {
+                statusMessage.value = statusResult.message
+            }
 
             if (!statusResult.loading) {
                 const result = await $fetch(`/backend/result?id=${trackingId}`, {

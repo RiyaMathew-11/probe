@@ -41,7 +41,7 @@ While there are tools that scan for vulnerabilities or outdated packages, probe 
  - **Analytics on PR reviews and authors**: Insights into cycle time and general PR related statistics.
 
 ## Usage
-You can use the hosted instance of the app at [https://dev-probe.app](https://dev-probe.app).
+You can use the hosted instance of the app at [https://dev-probe.fly.dev/](https://dev-probe.fly.dev/).
 
 ## Built with
  - JavaScript: Vue, TailwindCSS
