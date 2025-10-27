@@ -2,9 +2,20 @@
 export default defineNuxtConfig({
   devtools: { enabled: true },
 
+  app: {
+    head: {
+      title: 'Probe - dependency scanner for node projects',
+      htmlAttrs: {
+        lang: 'en',
+      },
+      link: [
+        { rel: 'icon', type: 'image/png', href: '/probe_logo.png' },
+      ],
+    },
+  },
+
   runtimeConfig: {
     public: {
-      // To be provided by the runner
       backendUrl: ""
     }
   },
